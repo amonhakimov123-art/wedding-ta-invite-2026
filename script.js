@@ -345,13 +345,17 @@
       var dash = "—";
       var drinksNice = payload.drinks.length ? payload.drinks.join(", ") : dash;
 
-      fetch("https://formsubmit.co/ajax/amonhakimov123@gmail.com", {
+      /* Отправка на почту через Google Apps Script (работает из РФ без VPN) */
+      var GAS_URL = "https://script.google.com/macros/s/AKfycbyq7H5fY3thj5dAbOrSBbRtkGVeJswWHXG78LYF_r27rSuHUiqUJx6dRCIeD8xtDrFy/exec";
+
+      fetch(GAS_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        /* no-cors + text/plain: Apps Script принимает запрос и шлёт письмо;
+           ответ opaque из‑за редиректа Google — «Спасибо» показываем всегда */
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({
           _subject: "💍 Анкета гостя — " + payload.name + " · Тимур и Арина",
-          _template: "table",
-          _captcha: "false",
           "Имя гостя": payload.name,
           "Присутствие": attendanceNice,
           "Взрослых": String(payload.adults),
@@ -368,6 +372,7 @@
           "Когда ответили": whenNice + " (Владивосток)"
         })
       }).catch(function () {
+        /* сеть — данные уже в localStorage */
       }).finally(function () {
         if (submitBtn) {
           submitBtn.disabled = false;
